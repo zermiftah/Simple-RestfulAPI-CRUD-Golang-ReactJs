@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+	
 	"github.com/gorilla/mux" 
 	"github.com/jinzhu/gorm"
 	_ "github.com/go-sql-driver/mysql"
@@ -42,13 +45,51 @@ func handleRequests(){
 	log.Println("Quit the server with CONTROL-C.")
 
 	myRouter := mux.NewRouter().StrictSlash(true)
+	
+	myRouter.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+
+		res := Result{Code: 404, Message: "Method not found"}
+		response, _ := json.Marshal(res)
+		w.Write(response)
+	})
+
+	myRouter.MethodNotAllowedHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+
+		res := Result{Code: 403, Message: "Method not allowed"}
+		response, _ := json.Marshal(res)
+		w.Write(response)
+	})
 
 	myRouter.HandleFunc("/", homePage)
-	myRouter.HandleFunc("/article", createArticle).Method("POST")
+	myRouter.HandleFunc("/article/", createArticle).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":9999", myRouter))
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Welcome!")
+}
+
+func createArticle(w http.ResponseWriter, r *http.request){
+	payloads, _ := ioutil.ReadAll(r.Body)
+
+	var posts Posts
+	json.Unmarshal(payloads, &posts)
+
+	db.Create(&posts)
+
+	res := Result{Code: 200, Data: posts, Message: "Success create article"}
+	result, err := json.Marshal(res)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(result)
 }
