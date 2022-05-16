@@ -167,3 +167,25 @@ func updateArticle(w http.ResponseWriter, r *http.Request) {
 	w.Write(result)
 }
 
+
+func deleteArticle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	postsID := vars["id"]
+
+	var posts Posts
+
+	db.First(&posts, postsID)
+	db.Delete(&posts)
+
+	res := Result{Code: 200, Message: "Success delete article"}
+	result, err := json.Marshal(res)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(result)
+}
+
