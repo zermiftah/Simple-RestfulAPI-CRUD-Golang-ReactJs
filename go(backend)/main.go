@@ -142,3 +142,28 @@ func getArticle(w http.ResponseWriter, r *http.Request) {
 	w.Write(result)
 }
 
+func updateArticle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	postsID := vars["id"]
+
+	payloads, _ := ioutil.ReadAll(r.Body)
+
+	var postsUpdates Posts
+	json.Unmarshal(payloads, &postsUpdates)
+
+	var posts Posts
+	db.First(&posts, postsID)
+	db.Model(&posts).Updates(postsUpdates)
+
+	res := Result{Code: 200, Data: posts, Message: "Success update article"}
+	result, err := json.Marshal(res)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(result)
+}
+
