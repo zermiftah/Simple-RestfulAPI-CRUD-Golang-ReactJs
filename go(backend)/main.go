@@ -7,7 +7,8 @@ import (
 	"log"
 	"net/http"
 	"time"
-	
+
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux" 
 	"github.com/jinzhu/gorm"
 	_ "github.com/go-sql-driver/mysql"
@@ -18,9 +19,9 @@ var err error
 
 type Posts struct {
 	Id int `json:"id"`
-	Title string `json:"title"`
-	Content string `json:"content"`
-	Category string `json:"category"`
+	Title string `json:"title" validate:"required,min=20"`
+	Content string `json:"content" validate:"required,min=200"`
+	Category string `json:"category" validate:"required,min=3"`
 	CreatedDate time.Time `json:"created_date"` 
 	UpdatedDate time.Time `json:"updated_date"` 
 	Status string `json:"status"`
@@ -32,8 +33,11 @@ type Result struct {
 	Message string      `json:"message"`
 }
 
+var validate *validator.Validate
+
 func main() {
 	db, err = gorm.Open("mysql", "root:@/article?charset=utf8&parseTime=True")
+	
 
 	if err != nil {
 		log.Println("Connection Failed", err)
@@ -88,6 +92,33 @@ func createArticle(w http.ResponseWriter, r *http.Request){
 	payloads, _ := ioutil.ReadAll(r.Body)
 
 	var posts Posts
+
+	validate = validator.New()
+	err := validate.Struct(posts)
+	if err != nil {
+
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			fmt.Println(err)
+			return
+		}
+
+		for _, err := range err.(validator.ValidationErrors) {
+
+			fmt.Println(err.Namespace()) // can differ when a custom TagNameFunc is registered or
+			fmt.Println(err.Field())     // by passing alt name to ReportError like below
+			fmt.Println(err.StructNamespace())
+			fmt.Println(err.StructField())
+			fmt.Println(err.Tag())
+			fmt.Println(err.ActualTag())
+			fmt.Println(err.Kind())
+			fmt.Println(err.Type())
+			fmt.Println(err.Value())
+			fmt.Println(err.Param())
+			fmt.Println()
+		}
+		fmt.Println("Please check your data")
+	}
+
 	json.Unmarshal(payloads, &posts)
 
 	db.Create(&posts)
@@ -98,6 +129,7 @@ func createArticle(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
