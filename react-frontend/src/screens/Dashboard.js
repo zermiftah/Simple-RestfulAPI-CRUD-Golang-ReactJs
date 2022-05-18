@@ -165,14 +165,10 @@ export default function Example() {
                             </div>
                         </Transition.Child>
                         <div className="flex-shrink-0 w-14" aria-hidden="true">
-                            {/* Dummy element to force sidebar to shrink to fit close icon */}
                         </div>
                     </Dialog>
                 </Transition.Root>
-
-                {/* Static sidebar for desktop */}
                 <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-                    {/* Sidebar component, swap this element with another sidebar if you like */}
                     <div className="flex flex-col flex-grow bg-cyan-700 pt-5 pb-4 overflow-y-auto">
                         <div className="flex items-center flex-shrink-0 px-4">
                             <img
@@ -365,7 +361,6 @@ export default function Example() {
                                 Articles
                             </h2>
 
-                            {/* Activity list (smallest breakpoint only) */}
                             <div className="shadow sm:hidden">
                                 <ul role="list" className="mt-2 divide-y divide-gray-200 overflow-hidden shadow sm:hidden">
                                     {articles.map((article) => (
@@ -420,7 +415,6 @@ export default function Example() {
                                 </nav>
                             </div>
 
-                            {/* Activity table (small breakpoint and up) */}
                             <div className="hidden sm:block">
                                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                                     <div className="flex flex-col mt-2">
