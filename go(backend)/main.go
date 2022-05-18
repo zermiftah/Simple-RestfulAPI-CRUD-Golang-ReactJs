@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux" 
 	"github.com/jinzhu/gorm"
 	_ "github.com/go-sql-driver/mysql"
@@ -81,7 +82,8 @@ func handleRequests(){
 	myRouter.HandleFunc("/article/{id}", updateArticle).Methods("PUT")
 	myRouter.HandleFunc("/article/{id}", deleteArticle).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":9999", myRouter))
+	log.Fatal(http.ListenAndServe(":9999", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(myRouter)))
+
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
