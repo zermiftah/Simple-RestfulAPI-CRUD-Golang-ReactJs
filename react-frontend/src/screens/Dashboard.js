@@ -20,8 +20,8 @@ import {
 } from '@heroicons/react/solid'
 
 const navigation = [
-    { name: 'All Post', href: '#', icon: DocumentReportIcon, current: true },
-    { name: 'Add New', href: '#', icon: CreditCardIcon, current: false },
+    { name: 'All Post', href: '/', icon: DocumentReportIcon, current: true },
+    { name: 'Add New', href: '/addarticle', icon: CreditCardIcon, current: false },
     { name: 'Preview', href: '#', icon: ClockIcon, current: false },
 
 ]
@@ -42,7 +42,8 @@ function classNames(...classes) {
 export default function Example() {
     const [articles, setArticles] = useState([])
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [getStatus, setStatus] = useState('');
+    const [getStatus, setStatus] = useState('')
+    const [getId, setId] = useState('')
 
     useEffect(() => {
         const fetcharticles = async () => {
@@ -67,11 +68,9 @@ export default function Example() {
         return status;
     }
 
-    const handlTrash = () => {
-        axios.put(`http://localhost:9999/article/${id}`, {
-            title: title,
-            content: content,
-            category: category
+    const handlTrash = (prop) => {
+        axios.put(`http://localhost:9999/article/${prop}`, {
+            status: "Trashed"
         })
     }
 
@@ -469,6 +468,7 @@ export default function Example() {
                                                                                 </a>
                                                                                 <a
                                                                                     href="#"
+                                                                                    onClick={() => { handlTrash(article.id) }}
                                                                                     className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                                                                                 >
                                                                                     Trash
@@ -499,6 +499,7 @@ export default function Example() {
                                                                                 </a>
                                                                                 <a
                                                                                     href="#"
+                                                                                    onClick={() => { handlTrash(article.id) }}
                                                                                     className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                                                                                 >
                                                                                     Trash
@@ -528,7 +529,7 @@ export default function Example() {
                                                                                 Edit
                                                                             </a>
                                                                             <a
-                                                                                href="#"
+                                                                                onClick={() => { handlTrash(article.id) }}
                                                                                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                                                                             >
                                                                                 Trash
@@ -574,7 +575,7 @@ export default function Example() {
                         </div>
                     </main>
                 </div>
-            </div>
+            </div >
         </>
     )
 }
